@@ -43,7 +43,8 @@ for i in range(ITER):
     mu_mat = mu_mo/mu_no
     cov_mat = []
     for c in range(CLUSTER_NUM):
-        tmp = np.eye(FEAT_NUM,FEAT_NUM)
+        #tmp = np.eye(FEAT_NUM,FEAT_NUM)
+        tmp = np.zeros([FEAT_NUM,FEAT_NUM])
         for d in range(INS_NUM):
             D = DATA[d]-mu_mat.transpose()[c]
             D = np.expand_dims(D,axis=0)
