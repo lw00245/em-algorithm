@@ -9,15 +9,28 @@ import numpy as np
 from sklearn import preprocessing
 from sklearn.datasets.samples_generator import make_blobs
 from sklearn import metrics
+from sklearn import cluster, datasets, mixture
+from pprint import pprint
 ## INIT PROCESS
 ITER = 50
-CLUSTER_NUM = 4
+CLUSTER_NUM = 2
 centers = [[2, 2], [-2, -2], [2, -2],[-2,2]]
+
+"""
 DATA, LABEL = make_blobs(n_samples=1000, centers=centers, cluster_std=0.9)
+"""
+
+DATA, LABEL = datasets.make_circles(
+        n_samples=1000, 
+        factor=.5,
+        noise=.05
+)
 FEAT_NUM = DATA.shape[1]
 INS_NUM = DATA.shape[0]
 MEAN = DATA.mean(axis=0)
 MIN,MAX = DATA.min(axis=0),DATA.max(axis=0)
+WEIGHT = np.random.random_sample((1,CLUSTER_NUM))
+#WEIGHT = [0.3,0.7]
 
 ##DISTRI
 DISTRI = [
@@ -33,11 +46,16 @@ for i in range(ITER):
         ]
         for d in DATA
     ],dtype=np.float64)
+    dis_all = dis_all * WEIGHT
+    dis_all = dis_all.transpose()/dis_all.sum(axis=1)
+    dis_all = dis_all.transpose()
+    
+    WEIGHT = dis_all.sum(axis=0,keepdims=1)/INS_NUM
+    print(WEIGHT)
     label = np.argmax(dis_all,axis=1)
     loss = metrics.adjusted_rand_score(LABEL, label)
     print("iter %s loss %.3f" % (i,loss))
-    dis_all = dis_all.transpose()/dis_all.sum(axis=1)
-    dis_all = dis_all.transpose()
+    
     mu_mo = np.matmul(DATA.transpose(),dis_all)
     mu_no = dis_all.sum(axis=0,keepdims=1)
     mu_mat = mu_mo/mu_no
@@ -61,8 +79,8 @@ for i in range(ITER):
         for i in range(CLUSTER_NUM) 
     ]
 
-print(dis_all)
-print(cov_mat)
+pprint(dis_all)
+pprint(cov_mat)
 #print([LABEL,np.argmax(dis_all,axis=1)])
 label = np.argmax(dis_all,axis=1)
 import matplotlib.pyplot as plt
