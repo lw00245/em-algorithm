@@ -27,15 +27,18 @@ def gibbs_sampling(mus, sigmas, iter=10000):
 
 
 def hastings_sampler(MN_OBJ,iter=10000):
-
+    from scipy.stats import multivariate_normal as MN
     samples = np.zeros((iter, 2))
     d_old = np.random.rand(2)
+    mus = [10,10]
+    sig = [[1,0.5],[0.5,1]]
     for i in range(iter):
-        delta = np.random.multivariate_normal([0,0],[[1,0.5],[0.5,1]])
+        delta = np.random.multivariate_normal(mus,sig)
+        MN_PRO = MN(mus,sig)
         d_new = d_old + delta
         u = np.random.rand()
         samples[i,:] = d_old
-        if u <= MN_OBJ.pdf(d_new)/MN_OBJ.pdf(d_old):
+        if u <= (MN_OBJ.pdf(d_new) * MN_PRO.pdf(-1 * delta))/(MN_OBJ.pdf(d_old) * MN_PRO.pdf(delta)):
             samples[i,:] = d_new
             d_old = d_new
         """
